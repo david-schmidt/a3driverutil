@@ -152,7 +152,7 @@ def readUnpack(file,bytes, **options):
     if options.get("type") == '1':
         SOS = file.read(bytes)
         offset_unpacked = unpack ('< B', SOS)
-        return int(ord(SOS))
+        return offset_unpacked[0]
 
 # this function reads a word from a string at the specified
 # offset and returns an integer 
@@ -367,27 +367,27 @@ if args.command == 'bin':
 
 # Convert file and output as SOS.DRIVER format
 # adds a dummy charset and keyboard header to keep scp happy
-elif args.command == 'sos':  
+elif args.command == 'sos':
     driver = convert_o65(args.o65file)
 
     #create SOS driver header
-    header = 'SOS DRVR'
+    header = b'SOS DRVR'
     header += pack('<H',0x0522)  #header length
     header += pack('>H',0x0400)  #Number of Disk /// drives installed (4)
-    header += '??              ' #char set name, ?? indicates no char set included (16 chars long)
-    
-    for i in range(0,0x400):     #pad out the char set with spaces   
-        header += ' '
-    
-    header += '??              ' #keyboard layout name (16 chars long)
-    
-    for i in range(0,0x100):     #pad out with spaces   
-        header += ' '
-    
+    header += b'??              ' #char set name, ?? indicates no char set included (16 chars long)
+
+    for i in range(0,0x400):     #pad out the char set with spaces
+        header += b' '
+
+    header += b'??              ' #keyboard layout name (16 chars long)
+
+    for i in range(0,0x100):     #pad out with spaces
+        header += b' '
+
     sos_file = args.sosfile
     outfile = open(sos_file,'wb')
-    outfile.write(header + driver + pack('>H',0xFFFF))  #add the end marker   
-    
+    outfile.write(header + driver + pack('>H',0xFFFF))  #add the end marker
+
     print('File converted and written as SOS.DRIVER binary file to:',sos_file)
     outfile.close()
    
